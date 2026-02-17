@@ -109,19 +109,24 @@ function getConfigItem($section, $key, $configs) {
 }
 
 function getNXDNReflectorLog() {
-    $logPath = NXDNREFLECTORLOGPATH."/".NXDNREFLECTORLOGPREFIX."-".date("Y-m-d").".log";
-    $logLines = array();
-    if (file_exists($logPath) && is_readable($logPath)) {
-        if ($log = fopen($logPath, 'r')) {
-            while ($logLine = fgets($log)) {
-                if (startsWith($logLine, "M:")) {
-                    array_push($logLines, $logLine);
+// TNX TA2KW
+$logLines = array();
+$files = glob(NXDNREFLECTORLOGPATH."/".NXDNREFLECTORLOGPREFIX."*.log");
+if ($files) {
+    rsort($files);
+    foreach ($files as $file) {
+        if (is_readable($file)) {
+            $log = fopen($file, 'r');
+            while ($line = fgets($log)) {
+                if (strpos(trim($line), "M:") === 0) {
+                    $logLines[] = $line;
                 }
             }
             fclose($log);
         }
     }
-    return $logLines;
+}
+return $logLines;
 }
 
 function getLastHeard($logLines) {
